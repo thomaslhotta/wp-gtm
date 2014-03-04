@@ -137,3 +137,4 @@ class Google_Tag_Manager
 	}
 }
 
+add_action( 'init', array( 'Google_Tag_Manager', 'get_instance' ) );
