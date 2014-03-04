@@ -1,6 +1,6 @@
 <?php
 /**
- * @package   WP_CSV_User_Import
+ * @package   WP-GTM
  * @author    Thomas Lhotta
  * @license   GPL-2.0+
  * @link      http://example.com
