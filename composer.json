@@ -2,7 +2,7 @@
     "name": "thomaslhotta/wp-gtm",
     "description": "A simple plugin that inserts a Google Tag Manager Snippet into the WordPress theme",
     "license": "GPL-2.0+",
-    "type": "wordpress-muplugin",
+    "type": "wordpress-plugin",
     "authors": [
         {
             "name": "Thomas Lhotta",
