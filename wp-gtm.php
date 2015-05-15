@@ -1,26 +1,26 @@
 <?php
 /**
  * @package   WP-GTM
- * @author    Thomas Lhotta
+ * @author	Thomas Lhotta
  * @license   GPL-2.0+
- * @link      http://example.com
+ * @link	  http://example.com
  * @copyright 2013 Thomas Lhotta
  *
  * @wordpress-plugin
- * Plugin Name:       Wordpress Google Tag Manager
- * Plugin URI:        https://github.com/thomaslhotta/wp-gtm
- * Description:       Allows adding of a Google Tag Manager Container via Wordpress config file. 
- * Version:           1.0.0
- * Author:            Thomas Lhotta
- * Author URI:        https://github.com/thomaslhotta
- * Text Domain:       cie
- * License:           GPL-2.0+
- * Domain Path:       /languages
+ * Plugin Name:	   Wordpress Google Tag Manager
+ * Plugin URI:		https://github.com/thomaslhotta/wp-gtm
+ * Description:	   Allows adding of a Google Tag Manager Container via Wordpress config file. 
+ * Version:		   1.0.0
+ * Author:			Thomas Lhotta
+ * Author URI:		https://github.com/thomaslhotta
+ * Text Domain:	   cie
+ * License:		   GPL-2.0+
+ * Domain Path:	   /languages
  * GitHub Plugin URI: https://github.com/thomaslhotta/wp-gtm
  */
 
 
-if ( !defined( 'ABSPATH' ) || !defined( 'GOOGLE_TAG_MANAGER_CONTAINER' ) || '' == GOOGLE_TAG_MANAGER_CONTAINER ) {
+if ( ! defined( 'ABSPATH' ) || ! defined( 'GOOGLE_TAG_MANAGER_CONTAINER' ) || '' == GOOGLE_TAG_MANAGER_CONTAINER ) {
 	return;
 }
 
@@ -38,8 +38,8 @@ class Google_Tag_Manager
 	protected static $instance;
 
 	/**
-     * Used to check if the fallback action has to be used.
-     * 
+	 * Used to check if the fallback action has to be used.
+	 *
 	 * @var boolean
 	 */
 	protected $echoed = false;
@@ -51,7 +51,7 @@ class Google_Tag_Manager
 	 */
 	public static function get_instance()
 	{
-		if ( !self::$instance instanceof self ) {
+		if ( ! self::$instance instanceof self ) {
 			self::$instance = new self();
 		}
 
@@ -60,7 +60,7 @@ class Google_Tag_Manager
 
 	protected function __construct()
 	{
-		if ( !defined( 'GOOGLE_TAG_MANAGER_CONTAINER' ) || '' == GOOGLE_TAG_MANAGER_CONTAINER ) {
+		if ( ! defined( 'GOOGLE_TAG_MANAGER_CONTAINER' ) || '' == GOOGLE_TAG_MANAGER_CONTAINER ) {
 			return;
 		}
 
@@ -76,6 +76,11 @@ class Google_Tag_Manager
 
 		// On the login screen we must add it to the footer as there is no hook after the body tag
 		add_action( 'login_footer', array( $this, 'gtm_tag' ) );
+
+		// Activate in admin if constant ist set
+		if ( defined( 'GOOGLE_TAG_MANAGER_IN_ADMIN' ) && GOOGLE_TAG_MANAGER_IN_ADMIN ) {
+			add_action( 'in_admin_header', array( $this, 'gtm_tag' ) );
+		}
 	}
 
 	/**
@@ -92,12 +97,12 @@ class Google_Tag_Manager
 
 		// Log current post type
 		$post_type = get_post_type();
-		if ( !empty( $post_type ) ) {
+		if ( ! empty( $post_type ) ) {
 			$data_layer['postType'] = get_post_type();
 		}
 
 
-		$data_layer = apply_filters( 'google_tag_manager_data_layer',  $data_layer );
+		$data_layer = apply_filters( 'google_tag_manager_data_layer', $data_layer );
 
 		return json_encode( $data_layer );
 	}
