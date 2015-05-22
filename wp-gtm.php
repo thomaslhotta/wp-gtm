@@ -103,8 +103,8 @@ class Google_Tag_Manager
 
 		// Log site names and ids on multi site installs
 		if ( is_multisite() ) {
-			$data_layer['site_id'] = get_current_blog_id();
-			$data_layer['site_name'] = get_bloginfo( 'name' );
+			$data_layer['siteId'] = get_current_blog_id();
+			$data_layer['siteName'] = get_bloginfo( 'name' );
 		}
 
 		$data_layer = apply_filters( 'google_tag_manager_data_layer', $data_layer );
