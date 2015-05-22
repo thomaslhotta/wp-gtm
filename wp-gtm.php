@@ -97,10 +97,15 @@ class Google_Tag_Manager
 
 		// Log current post type
 		$post_type = get_post_type();
-		if ( ! empty( $post_type ) ) {
+		if ( ! is_admin() && ! empty( $post_type ) ) {
 			$data_layer['postType'] = get_post_type();
 		}
 
+		// Log site names and ids on multi site installs
+		if ( is_multisite() ) {
+			$data_layer['site_id'] = get_current_blog_id();
+			$data_layer['site_name'] = get_bloginfo( 'name' );
+		}
 
 		$data_layer = apply_filters( 'google_tag_manager_data_layer', $data_layer );
 
