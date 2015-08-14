@@ -9,7 +9,7 @@
  * @wordpress-plugin
  * Plugin Name:	   Wordpress Google Tag Manager
  * Plugin URI:		https://github.com/thomaslhotta/wp-gtm
- * Description:	   Allows adding of a Google Tag Manager Container via Wordpress config file. 
+ * Description:	   Allows adding of a Google Tag Manager Container via Wordpress config file.
  * Version:		   1.0.0
  * Author:			Thomas Lhotta
  * Author URI:		https://github.com/thomaslhotta
@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) || ! defined( 'GOOGLE_TAG_MANAGER_CONTAINER' ) || ''
 }
 
 /**
- * A simple plugin that allows adding of a Google Tag Manager Container via Wordpress config file. 
+ * A simple plugin that allows adding of a Google Tag Manager Container via Wordpress config file.
  *
  * @author Thomas Lhotta
  *
@@ -93,7 +93,7 @@ class Google_Tag_Manager
 		$data_layer = array();
 
 		// Log if the user is logged in
-		$data_layer['loggedIn'] = is_user_logged_in();
+		$data_layer['loggedIn'] = is_user_logged_in() ? 'true' : 'false';
 
 		// Log current post type
 		$post_type = get_post_type();
@@ -103,7 +103,7 @@ class Google_Tag_Manager
 
 		// Log site names and ids on multi site installs
 		if ( is_multisite() ) {
-			$data_layer['siteId'] = get_current_blog_id();
+			$data_layer['siteId'] = (string) get_current_blog_id();
 			$data_layer['siteName'] = get_bloginfo( 'name' );
 		}
 
