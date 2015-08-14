@@ -93,7 +93,7 @@ class Google_Tag_Manager
 		$data_layer = array();
 
 		// Log if the user is logged in
-		$data_layer['loggedIn'] = is_user_logged_in() ? 'true' : 'false';
+		$data_layer['loggedIn'] = is_user_logged_in();
 
 		// Log current post type
 		$post_type = get_post_type();
@@ -103,7 +103,7 @@ class Google_Tag_Manager
 
 		// Log site names and ids on multi site installs
 		if ( is_multisite() ) {
-			$data_layer['siteId'] = (string) get_current_blog_id();
+			$data_layer['siteId'] = get_current_blog_id();
 			$data_layer['siteName'] = get_bloginfo( 'name' );
 		}
 
