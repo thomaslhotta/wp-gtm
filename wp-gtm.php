@@ -1,21 +1,19 @@
 <?php
 /**
  * @package   WP-GTM
- * @author	Thomas Lhotta
+ * @author    Thomas Lhotta
  * @license   GPL-2.0+
- * @link	  http://example.com
- * @copyright 2013 Thomas Lhotta
+ * @link      https://github.com/thomaslhotta/wp-gtm
+ * @copyright 2016 Thomas Lhotta
  *
  * @wordpress-plugin
- * Plugin Name:	   Wordpress Google Tag Manager
- * Plugin URI:		https://github.com/thomaslhotta/wp-gtm
- * Description:	   Allows adding of a Google Tag Manager Container via Wordpress config file.
- * Version:		   1.0.0
- * Author:			Thomas Lhotta
- * Author URI:		https://github.com/thomaslhotta
- * Text Domain:	   cie
- * License:		   GPL-2.0+
- * Domain Path:	   /languages
+ * Plugin Name:	      Wordpress Google Tag Manager
+ * Plugin URI:	      https://github.com/thomaslhotta/wp-gtm
+ * Description:	      Allows adding of a Google Tag Manager Container via WordPress config file.
+ * Version:	      1.0.1
+ * Author:	      Thomas Lhotta
+ * Author URI:	      https://github.com/thomaslhotta
+ * License:	      GPL-2.0+
  * GitHub Plugin URI: https://github.com/thomaslhotta/wp-gtm
  */
 
@@ -49,8 +47,7 @@ class Google_Tag_Manager
 	 *
 	 * @return Google_Tag_Manager
 	 */
-	public static function get_instance()
-	{
+	public static function get_instance() {
 		if ( ! self::$instance instanceof self ) {
 			self::$instance = new self();
 		}
@@ -58,12 +55,7 @@ class Google_Tag_Manager
 		return self::$instance;
 	}
 
-	protected function __construct()
-	{
-		if ( ! defined( 'GOOGLE_TAG_MANAGER_CONTAINER' ) || '' == GOOGLE_TAG_MANAGER_CONTAINER ) {
-			return;
-		}
-
+	protected function __construct() {
 		// Add data layer
 		add_action( 'wp_head', array( $this, 'gtm_data_layer' ) );
 		add_action( 'login_head', array( $this, 'gtm_data_layer' ) );
@@ -88,12 +80,11 @@ class Google_Tag_Manager
 	 *
 	 * @return string
 	 */
-	public function get_data_layer( )
-	{
+	public function get_data_layer() {
 		$data_layer = array();
 
 		// Log if the user is logged in
-		$data_layer['loggedIn'] = is_user_logged_in();
+		$data_layer['loggedIn'] = is_user_logged_in() ? '1' : '0';
 
 		// Log current post type
 		$post_type = get_post_type();
@@ -103,20 +94,19 @@ class Google_Tag_Manager
 
 		// Log site names and ids on multi site installs
 		if ( is_multisite() ) {
-			$data_layer['siteId'] = get_current_blog_id();
+			$data_layer['siteId'] = (string) get_current_blog_id();
 			$data_layer['siteName'] = get_bloginfo( 'name' );
 		}
 
 		$data_layer = apply_filters( 'google_tag_manager_data_layer', $data_layer );
 
-		return json_encode( $data_layer );
+		return wp_json_encode( $data_layer );
 	}
 
 	/**
 	 * Prints the data layer tag
 	 */
-	public function gtm_data_layer()
-	{
+	public function gtm_data_layer() {
 		$data_layer = $this->get_data_layer();
 		echo '<script> dataLayer = [' . $data_layer .'  ];</script>';
 	}
@@ -124,8 +114,7 @@ class Google_Tag_Manager
 	/**
 	 * Prints the GTM snippet
 	 */
-	public function gtm_tag()
-	{
+	public function gtm_tag() {
 		// Return if tag has already been echoed
 		if ( $this->echoed ) {
 			return;
@@ -135,16 +124,17 @@ class Google_Tag_Manager
 
 		?>
 		<!-- Google Tag Manager -->
-		<noscript><iframe src="//www.googletagmanager.com/ns.html?id=<?php echo GOOGLE_TAG_MANAGER_CONTAINER?>"
+		<noscript><iframe src="//www.googletagmanager.com/ns.html?id=<?php echo esc_attr( GOOGLE_TAG_MANAGER_CONTAINER )?>"
 		height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 		<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 		new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 		j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-		})(window,document,'script','dataLayer','<?php echo GOOGLE_TAG_MANAGER_CONTAINER?>');</script>
+		})(window,document,'script','dataLayer','<?php echo esc_js( GOOGLE_TAG_MANAGER_CONTAINER )?>');</script>
 		<!-- End Google Tag Manager -->
 		<?php
 	}
 }
 
 add_action( 'init', array( 'Google_Tag_Manager', 'get_instance' ) );
+
