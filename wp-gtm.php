@@ -107,8 +107,13 @@ class Google_Tag_Manager
 	 * Prints the data layer tag
 	 */
 	public function gtm_data_layer() {
-		$data_layer = $this->get_data_layer();
-		echo '<script> dataLayer = [' . $data_layer .'  ];</script>';
+		printf(
+			'<script>
+				window.dataLayer = window.dataLayer || [];
+				dataLayer.push(%s);
+			</script>',
+			$this->get_data_layer()
+		);
 	}
 
 	/**
