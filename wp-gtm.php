@@ -4,16 +4,16 @@
  * @author    Thomas Lhotta
  * @license   GPL-2.0+
  * @link      https://github.com/thomaslhotta/wp-gtm
- * @copyright 2016 Thomas Lhotta
+ * @copyright 2020 Thomas Lhotta
  *
  * @wordpress-plugin
  * Plugin Name:	      Wordpress Google Tag Manager
  * Plugin URI:	      https://github.com/thomaslhotta/wp-gtm
  * Description:	      Allows adding of a Google Tag Manager Container via WordPress config file.
- * Version:	      1.0.1
- * Author:	      Thomas Lhotta
+ * Version:	      	  1.0.2
+ * Author:	          Thomas Lhotta
  * Author URI:	      https://github.com/thomaslhotta
- * License:	      GPL-2.0+
+ * License:	          GPL-2.0+
  * GitHub Plugin URI: https://github.com/thomaslhotta/wp-gtm
  */
 
@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) || ! defined( 'GOOGLE_TAG_MANAGER_CONTAINER' ) || ''
 }
 
 /**
- * A simple plugin that allows adding of a Google Tag Manager Container via Wordpress config file.
+ * A simple plugin that allows adding of a Google Tag Manager Container via WordPress config file.
  *
  * @author Thomas Lhotta
  *
@@ -36,11 +36,11 @@ class Google_Tag_Manager
 	protected static $instance;
 
 	/**
-	 * Used to check if the fallback action has to be used.
+	 * Used to check if a fallback iframe has already been rendered.
 	 *
-	 * @var boolean
+	 * @var array
 	 */
-	protected $echoed = false;
+	protected $rendered_iframes = [];
 
 	/**
 	 * Returns a singleton instance.
@@ -55,19 +55,22 @@ class Google_Tag_Manager
 		return self::$instance;
 	}
 
+	/**
+	 * Google_Tag_Manager constructor.
+	 */
 	protected function __construct() {
 		// Add data layer
 		add_action( 'wp_head', array( $this, 'gtm_data_layer' ) );
+		add_action( 'wp_head', array( $this, 'render_script_tags' ) );
 		add_action( 'login_head', array( $this, 'gtm_data_layer' ) );
+		add_action( 'login_head', array( $this, 'render_script_tags' ) );
 
 		// Add GTM snippet
-		add_action( 'after_body_open', array( $this, 'gtm_tag' ) );
+		add_action( 'after_body_open', array( $this, 'render_fallback_iframes' ) );
 
 		// Fallback to footer if no header action exists
-		add_action( 'wp_footer', array( $this, 'gtm_tag' ) );
-
-		// On the login screen we must add it to the footer as there is no hook after the body tag
-		add_action( 'login_footer', array( $this, 'gtm_tag' ) );
+		add_action( 'wp_footer', array( $this, 'render_fallback_iframes' ) );
+		add_action( 'login_footer', array( $this, 'render_fallback_iframes' ) );
 
 		// Activate in admin if constant ist set
 		if ( defined( 'GOOGLE_TAG_MANAGER_IN_ADMIN' ) && GOOGLE_TAG_MANAGER_IN_ADMIN ) {
@@ -94,7 +97,7 @@ class Google_Tag_Manager
 
 		// Log site names and ids on multi site installs
 		if ( is_multisite() ) {
-			$data_layer['siteId'] = (string) get_current_blog_id();
+			$data_layer['siteId']   = (string) get_current_blog_id();
 			$data_layer['siteName'] = get_bloginfo( 'name' );
 		}
 
@@ -117,29 +120,67 @@ class Google_Tag_Manager
 	}
 
 	/**
-	 * Prints the GTM snippet
+	 * Renders JS for all defined containers.
 	 */
-	public function gtm_tag() {
-		// Return if tag has already been echoed
-		if ( $this->echoed ) {
-			return;
+	public function render_script_tags() {
+		$container_ids = explode( ',', GOOGLE_TAG_MANAGER_CONTAINER );
+
+		foreach ( $container_ids as $single_container_id ) {
+			echo $this->get_script_tag( $single_container_id ) . PHP_EOL;
 		}
+	}
 
-		$this->echoed = true;
+	/**
+	 * Renders the fallback iframe for all defined containers.
+	 */
+	public function render_fallback_iframes() {
+		$container_ids = explode( ',', GOOGLE_TAG_MANAGER_CONTAINER );
 
-		?>
-		<!-- Google Tag Manager -->
-		<noscript><iframe src="//www.googletagmanager.com/ns.html?id=<?php echo esc_attr( GOOGLE_TAG_MANAGER_CONTAINER )?>"
-		height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-		<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-		new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-		j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-		'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-		})(window,document,'script','dataLayer','<?php echo esc_js( GOOGLE_TAG_MANAGER_CONTAINER )?>');</script>
-		<!-- End Google Tag Manager -->
-		<?php
+		foreach ( $container_ids as $single_container_id ) {
+			if ( in_array( $single_container_id, $this->rendered_iframes, true ) ) {
+				continue;
+			}
+			echo $this->get_fallback_iframe( $single_container_id ) . PHP_EOL;
+			$this->rendered_iframes[] = $single_container_id;
+		}
+	}
+
+	/**
+	 * Returns the contains JS template.
+	 *
+	 * @param string $container_id
+	 *
+	 * @return string
+	 */
+	public function get_script_tag( $container_id ) {
+		return sprintf(
+			"<!-- Google Tag Manager -->
+			<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+			new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+			j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+			'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+			})(window,document,'script','dataLayer','%s');</script>
+			<!-- End Google Tag Manager -->",
+			esc_js( $container_id )
+		);
+	}
+
+	/**
+	 * Returns the container iframe template.
+	 *
+	 * @param string $container_id
+	 *
+	 * @return string
+	 */
+	public function get_fallback_iframe( $container_id ) {
+		return sprintf(
+			'<!-- Google Tag Manager (noscript) -->
+			<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=%s"
+			height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+			<!-- End Google Tag Manager (noscript) -->',
+			esc_attr( $container_id )
+		);
 	}
 }
 
 add_action( 'init', array( 'Google_Tag_Manager', 'get_instance' ) );
-
