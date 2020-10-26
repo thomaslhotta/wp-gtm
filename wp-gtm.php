@@ -183,4 +183,8 @@ class Google_Tag_Manager
 	}
 }
 
+if ( apply_filters( 'wp_gtm_disable', (bool) get_option( 'wp_gtm_disable', false ) ) ) {
+	return;
+}
+
 add_action( 'init', array( 'Google_Tag_Manager', 'get_instance' ) );
