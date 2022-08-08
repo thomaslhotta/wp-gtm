@@ -9,8 +9,5 @@
             "email": "th.lhotta@gmail.com"
         }
     ],
-    "minimum-stability": "dev",
-    "require": {
-        "fancyguy/webroot-installer": "1.1.0"
-    }
+    "minimum-stability": "dev"
 }
