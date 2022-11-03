@@ -18,7 +18,7 @@
  */
 
 
-if ( ! defined( 'ABSPATH' ) || ! defined( 'GOOGLE_TAG_MANAGER_CONTAINER' ) || '' == GOOGLE_TAG_MANAGER_CONTAINER ) {
+if ( ! defined( 'ABSPATH' ) ) {
 	return;
 }
 
@@ -28,8 +28,8 @@ if ( ! defined( 'ABSPATH' ) || ! defined( 'GOOGLE_TAG_MANAGER_CONTAINER' ) || ''
  * @author Thomas Lhotta
  *
  */
-class Google_Tag_Manager
-{
+class Google_Tag_Manager {
+
 	/**
 	 * @var Google_Tag_Manager
 	 */
@@ -123,7 +123,7 @@ class Google_Tag_Manager
 	 * Renders JS for all defined containers.
 	 */
 	public function render_script_tags() {
-		$container_ids = explode( ',', GOOGLE_TAG_MANAGER_CONTAINER );
+		$container_ids = $this->get_gtm_ids();
 
 		foreach ( $container_ids as $single_container_id ) {
 			echo $this->get_script_tag( $single_container_id ) . PHP_EOL;
@@ -134,7 +134,7 @@ class Google_Tag_Manager
 	 * Renders the fallback iframe for all defined containers.
 	 */
 	public function render_fallback_iframes() {
-		$container_ids = explode( ',', GOOGLE_TAG_MANAGER_CONTAINER );
+		$container_ids = $this->get_gtm_ids();
 
 		foreach ( $container_ids as $single_container_id ) {
 			if ( in_array( $single_container_id, $this->rendered_iframes, true ) ) {
@@ -181,6 +181,24 @@ class Google_Tag_Manager
 			esc_attr( $container_id )
 		);
 	}
+
+    /**
+     * Returns the container ids
+     *
+     * @return array
+     */
+    public function get_gtm_ids() {
+        $container_ids = '';
+
+        if ( defined( 'GOOGLE_TAG_MANAGER_CONTAINER' ) ) {
+            $container_ids = GOOGLE_TAG_MANAGER_CONTAINER;
+        } else {
+            $container_ids = get_network_option( null, 'google_tag_manager_container' );
+        }
+
+        $container_ids = explode( ',', $container_ids );
+        return array_filter( $container_ids );
+    }
 }
 
 if ( apply_filters( 'wp_gtm_disable', (bool) get_option( 'wp_gtm_disable', false ) ) ) {
