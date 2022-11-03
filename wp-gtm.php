@@ -4,13 +4,13 @@
  * @author    Thomas Lhotta
  * @license   GPL-2.0+
  * @link      https://github.com/thomaslhotta/wp-gtm
- * @copyright 2020 Thomas Lhotta
+ * @copyright 2022 Thomas Lhotta
  *
  * @wordpress-plugin
  * Plugin Name:	      Wordpress Google Tag Manager
  * Plugin URI:	      https://github.com/thomaslhotta/wp-gtm
- * Description:	      Allows adding of a Google Tag Manager Container via WordPress config file.
- * Version:	      	  1.0.2
+ * Description:	      Allows adding of a Google Tag Manager Container via WordPress config file or network options.
+ * Version:	      	  1.3.1
  * Author:	          Thomas Lhotta
  * Author URI:	      https://github.com/thomaslhotta
  * License:	          GPL-2.0+
