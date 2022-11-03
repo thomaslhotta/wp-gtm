@@ -190,7 +190,7 @@ class Google_Tag_Manager {
     public function get_gtm_ids() {
         $container_ids = '';
 
-        if ( defined( 'GOOGLE_TAG_MANAGER_CONTAINER' ) ) {
+        if ( defined( 'GOOGLE_TAG_MANAGER_CONTAINER' ) && GOOGLE_TAG_MANAGER_CONTAINER ) {
             $container_ids = GOOGLE_TAG_MANAGER_CONTAINER;
         } else {
             $container_ids = get_network_option( null, 'google_tag_manager_container' );
